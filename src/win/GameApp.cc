@@ -146,6 +146,7 @@ bool GameApp::Initialize()
 
 void GameApp::Destroy()
 {
+    CC_SAFE_DESTROY(_test);
 }
 
 void GameApp::Resize(uint width, uint height)
