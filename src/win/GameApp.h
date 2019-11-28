@@ -1,8 +1,10 @@
 #ifndef __GAMEAPP_H__
 #define __GAMEAPP_H__
 
-#include "Core.h"
 #include <Windows.h>
+#include <vector>
+#include "Core.h"
+#include "tests/TestBase.h"
 
 NS_CC_BEGIN
 
@@ -52,6 +54,12 @@ protected:
 	bool					is_paused_;
 	bool					is_device_inited_;
   GFXDevice*    device_;
+
+private:
+	using createFunc = TestBaseI * (*)();
+	std::vector<createFunc> _tests;
+    TestBaseI* _test = nullptr;
+
 };
 
 extern GameApp *g_pApp;

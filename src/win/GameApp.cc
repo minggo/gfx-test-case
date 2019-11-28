@@ -1,5 +1,7 @@
 #include "GameApp.h"
 #include "base/ccMacros.h"
+#include "tests/TestBase.h"
+#include "tests/ClearScreenTest.h"
 
 NS_CC_BEGIN
 
@@ -100,7 +102,7 @@ void GameApp::Run()
 				float deltaTime = (currTimeStamp - prevTimeStamp)*secsPerCnt;
 
 				FrameMove(deltaTime);
-				Render();
+				_test->tick(deltaTime);
 
 				// Prepare for next iteration: The current time stamp becomes
 				// the previous time stamp for the next iteration.
@@ -116,6 +118,29 @@ void GameApp::Run()
 
 bool GameApp::Initialize()
 {
+    RECT rect;
+    GetClientRect(window_handle_, &rect);
+
+    GFXRect windowRect;
+    windowRect.x = rect.left;
+    windowRect.y = rect.top;
+    windowRect.width = rect.right - rect.left;
+    windowRect.height = rect.bottom - rect.top;
+
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	static bool first = true;
+    if (first)
+    {
+        _tests = {
+            ClearScreen::create,
+        };
+        _test = _tests[0]();
+        
+        _test->initialize((intptr_t)(window_handle_), windowRect, screenWidth, screenHeight);
+        first = false;
+    }
+
 	return true;
 }
 
