@@ -56,8 +56,8 @@ protected:
   GFXDevice*    device_;
 
 private:
-	using createFunc = TestBaseI * (*)();
-	std::vector<createFunc> _tests;
+    using createFunc = TestBaseI * (*)();
+    std::vector<createFunc> _tests;
     TestBaseI* _test = nullptr;
 
 };
