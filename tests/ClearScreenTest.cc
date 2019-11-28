@@ -4,45 +4,20 @@
 
 NS_CC_BEGIN
 
-ClearScreen::ClearScreen() {
-}
-
-ClearScreen::~ClearScreen() {
-}
-
 void ClearScreen::Destroy()
 {
     CC_SAFE_DESTROY(_commandBuffer);
     CC_SAFE_DESTROY(_device);
 }
 
-bool ClearScreen::initialize(intptr_t windowHandle, GFXRect windowRect, int screenWidth, int screenHeight) 
+bool ClearScreen::initialize()
 {
-#if 0
-  device_ = CC_NEW(GLES3Device);
-#else
-    _device = CC_NEW(GLES2Device);
-#endif
+    GFXCommandBufferInfo cmd_buff_info;
+    cmd_buff_info.allocator = _device->cmd_allocator();
+    cmd_buff_info.type = GFXCommandBufferType::PRIMARY;
+    _commandBuffer = _device->CreateGFXCommandBuffer(cmd_buff_info);
 
-  GFXDeviceInfo dev_info;
-  dev_info.window_handle = windowHandle;
-  dev_info.width = windowRect.width;
-  dev_info.height = windowRect.height;
-  dev_info.native_width = screenWidth;
-  dev_info.native_height = screenHeight;
-  if (!_device->Initialize(dev_info)) {
-    return false;
-  }
-
-  // Init primary command buffer
-  GFXCommandBufferInfo cmd_buff_info;
-  cmd_buff_info.allocator = _device->cmd_allocator();
-  cmd_buff_info.type = GFXCommandBufferType::PRIMARY;
-  _commandBuffer = _device->CreateGFXCommandBuffer(cmd_buff_info);
-  
-  _fbo = _device->window()->framebuffer();
-
-  return true;
+    return true;
 }
 
 void ClearScreen::tick(float dt) {

@@ -4,5 +4,6 @@ set(GFX_TESTCASE_HEADER
 )
 
 set(GFX_TESTCASE_SOURCE
+    ${PROJECT_SOURCE_DIR}/tests/TestBase.cpp
     ${PROJECT_SOURCE_DIR}/tests/ClearScreenTest.cc
 )

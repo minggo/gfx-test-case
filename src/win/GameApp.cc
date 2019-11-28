@@ -24,8 +24,8 @@ GameApp::GameApp()
     root_path_ = szRootPath;
 
     is_fullscreen_ = false;
-    screen_width_ = 1024;
-    screen_height_ = 768;
+    _windowInfo.screen.width = 1024;
+    _windowInfo.screen.height = 768;
     is_paused_ = false;
     is_device_inited_ = false;
 }
@@ -37,11 +37,11 @@ GameApp::~GameApp()
 bool GameApp::Setup()
 {
     // Initialize the windows API.
-    if(!InitAppWindow(screen_width_, screen_height_, is_fullscreen_))
-	    return false;
+    if(!InitAppWindow(_windowInfo.screen.width, _windowInfo.screen.height, is_fullscreen_))
+        return false;
 
     if (!Initialize()) {
-	    return false;
+        return false;
     }
 
     is_device_inited_ = true;
@@ -54,7 +54,7 @@ bool GameApp::Setup()
 void GameApp::Run()
 {
     if(!Setup())
-	    return ;
+        return ;
 
     __int64 cntsPerSec = 0;
     QueryPerformanceFrequency((LARGE_INTEGER*)&cntsPerSec);
@@ -118,26 +118,14 @@ void GameApp::Run()
 
 bool GameApp::Initialize()
 {
-    RECT rect;
-    GetClientRect(window_handle_, &rect);
-
-    GFXRect windowRect;
-    windowRect.x = rect.left;
-    windowRect.y = rect.top;
-    windowRect.width = rect.right - rect.left;
-    windowRect.height = rect.bottom - rect.top;
-
-    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
     static bool first = true;
     if (first)
     {
         _tests = {
             ClearScreen::create,
         };
-        _test = _tests[0]();
-        
-        _test->initialize((intptr_t)(window_handle_), windowRect, screenWidth, screenHeight);
+        _test = _tests[0](_windowInfo);
+        _test->initialize();
         first = false;
     }
 
@@ -237,7 +225,7 @@ LRESULT CALLBACK GameApp::MessageHandler(HWND hWnd, DWORD msg, WPARAM wParam, LP
     case WM_EXITSIZEMOVE:
     {
         RECT clientRect = { 0, 0, 0, 0 };
-        GetClientRect(window_handle_, &clientRect);
+        GetClientRect((HWND)_windowInfo.windowHandle, &clientRect);
         OnLostDevice();
         OnResetDevice();
     } break;
@@ -245,7 +233,7 @@ LRESULT CALLBACK GameApp::MessageHandler(HWND hWnd, DWORD msg, WPARAM wParam, LP
     // caption bar menu.
     case WM_CLOSE:
     {
-         DestroyWindow(window_handle_);
+         DestroyWindow((HWND)_windowInfo.windowHandle);
     } break;
     // WM_DESTROY is sent when the window is being destroyed.
     case WM_DESTROY:
@@ -341,15 +329,18 @@ bool GameApp::InitAppWindow(int screenWidth, int screenHeight, bool bFullscreen)
     }
 
     // Create the window with the screen settings and get the handle to it.
-    window_handle_ = CreateWindowEx(WS_EX_APPWINDOW, app_name_.c_str(), app_name_.c_str(), 
+    _windowInfo.windowHandle = (intptr_t)CreateWindowEx(WS_EX_APPWINDOW, app_name_.c_str(), app_name_.c_str(),
                                     WS_OVERLAPPEDWINDOW /*WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP*/,
                                     posX, posY, screenWidth, screenHeight, 
                                     NULL, NULL, instance_handlw_, NULL);
-
+    _windowInfo.screen.x = posX;
+    _windowInfo.screen.y = posY;
+    _windowInfo.physicalWidth = GetSystemMetrics(SM_CXSCREEN);
+    _windowInfo.physicalHeight = GetSystemMetrics(SM_CYSCREEN);
     // Bring the window up on the screen and set it as main focus.
-    ShowWindow(window_handle_, SW_SHOW);
-    SetForegroundWindow(window_handle_);
-    SetFocus(window_handle_);
+    ShowWindow((HWND)_windowInfo.windowHandle, SW_SHOW);
+    SetForegroundWindow((HWND)_windowInfo.windowHandle);
+    SetFocus((HWND)_windowInfo.windowHandle);
 
     // Hide the mouse cursor.
     //ShowCursor(false);
@@ -369,8 +360,8 @@ void GameApp::DestroyAppWindow()
     }
 
     // Remove the window.
-    DestroyWindow(window_handle_);
-    window_handle_ = NULL;
+    DestroyWindow((HWND)_windowInfo.windowHandle);
+    _windowInfo.windowHandle = NULL;
 
     // Remove the application instance.
     UnregisterClass(app_name_.c_str(), instance_handlw_);

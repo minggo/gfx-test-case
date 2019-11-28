@@ -1,5 +1,4 @@
-#ifndef __GAMEAPP_H__
-#define __GAMEAPP_H__
+#pragma once
 
 #include <Windows.h>
 #include <vector>
@@ -44,26 +43,20 @@ protected:
     void DestroyAppWindow();
 
 protected:
-    String				app_name_;
-    String				root_path_;
-    HINSTANCE			instance_handlw_;
-    HWND					window_handle_;
-    bool					is_fullscreen_;
-    int						screen_width_;
-    int						screen_height_;
-    bool					is_paused_;
-    bool					is_device_inited_;
-    GFXDevice*    device_;
+    String              app_name_;
+    String              root_path_;
+    HINSTANCE           instance_handlw_;
+    bool                is_fullscreen_;
+    bool                is_paused_;
+    bool                is_device_inited_;
+    WindowInfo          _windowInfo;
 
 private:
-    using createFunc = TestBaseI * (*)();
+    using createFunc = TestBaseI * (*)(const WindowInfo& info);
     std::vector<createFunc> _tests;
     TestBaseI* _test = nullptr;
-
 };
 
 extern GameApp *g_pApp;
 
 NS_CC_END
-
-#endif
