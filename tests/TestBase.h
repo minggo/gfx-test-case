@@ -27,8 +27,9 @@ public:
     virtual ~TestBaseI() = default;
 
 protected:
-    GFXDevice* _device = nullptr;
-    GFXFramebuffer* _fbo = nullptr;
+    GFXDevice* _device               = nullptr;
+    GFXFramebuffer* _fbo             = nullptr;
+    GFXCommandBuffer* _commandBuffer = nullptr;
 
 };
 

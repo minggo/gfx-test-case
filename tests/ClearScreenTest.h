@@ -17,7 +17,6 @@ class ClearScreen: public TestBaseI
      virtual void Destroy();
 
  private:
-     GFXCommandBuffer* _commandBuffer = nullptr;
      float _time = 0.0f;
 };
 

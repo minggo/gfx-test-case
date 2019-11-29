@@ -6,17 +6,10 @@ NS_CC_BEGIN
 
 void ClearScreen::Destroy()
 {
-    CC_SAFE_DESTROY(_commandBuffer);
-    CC_SAFE_DESTROY(_device);
 }
 
 bool ClearScreen::initialize()
 {
-    GFXCommandBufferInfo cmd_buff_info;
-    cmd_buff_info.allocator = _device->cmd_allocator();
-    cmd_buff_info.type = GFXCommandBufferType::PRIMARY;
-    _commandBuffer = _device->CreateGFXCommandBuffer(cmd_buff_info);
-
     return true;
 }
 

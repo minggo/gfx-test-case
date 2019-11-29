@@ -19,6 +19,11 @@ TestBaseI::TestBaseI(const WindowInfo& info)
     dev_info.native_height = info.physicalHeight;
     _device->Initialize(dev_info);
 
+    GFXCommandBufferInfo cmd_buff_info;
+    cmd_buff_info.allocator = _device->cmd_allocator();
+    cmd_buff_info.type = GFXCommandBufferType::PRIMARY;
+    _commandBuffer = _device->CreateGFXCommandBuffer(cmd_buff_info);
+
     _fbo = _device->window()->framebuffer();
 }
 
@@ -26,6 +31,7 @@ void TestBaseI::Destroy()
 {
     CC_SAFE_DESTROY(_device);
     CC_SAFE_DESTROY(_fbo);
+    CC_SAFE_DESTROY(_commandBuffer);
 }
 
 NS_CC_END
