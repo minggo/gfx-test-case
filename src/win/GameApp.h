@@ -25,6 +25,8 @@ public:
     virtual void OnKeyDown(WPARAM keyCode);
     virtual void OnMouseLDown(WORD x, WORD y);
     virtual void OnMouseLUp(WORD x, WORD y);
+    virtual void OnMouseRDown(WORD x, WORD y);
+    virtual void OnMouseRUp(WORD x, WORD y);
     virtual void OnMouseMDown(WORD x, WORD y);
     virtual void OnMouseMUp(WORD x, WORD y);
     virtual void OnMouseMove(WORD x, WORD y);
@@ -54,7 +56,8 @@ protected:
 private:
     using createFunc = TestBaseI * (*)(const WindowInfo& info);
     std::vector<createFunc> _tests;
-    TestBaseI* _test = nullptr;
+    TestBaseI* _test    = nullptr;
+    int _nextIndex      = 0;
 };
 
 extern GameApp *g_pApp;

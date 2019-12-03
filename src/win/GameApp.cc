@@ -1,7 +1,7 @@
 #include "GameApp.h"
 #include "base/ccMacros.h"
-#include "tests/TestBase.h"
 #include "tests/ClearScreenTest.h"
+#include "tests/BasicTriangleTest.h"
 
 NS_CC_BEGIN
 
@@ -123,9 +123,11 @@ bool GameApp::Initialize()
     {
         _tests = {
             ClearScreen::create,
+            BasicTriangle::create,
         };
-        _test = _tests[0](_windowInfo);
-        _test->initialize();
+        _test = _tests[1](_windowInfo);
+        if (_test == nullptr)
+            return false;
         first = false;
     }
 
@@ -147,9 +149,23 @@ void GameApp::OnKeyDown(WPARAM keyCode)
 
 void GameApp::OnMouseLDown(WORD x, WORD y)
 {
+    _nextIndex = (--_nextIndex + _tests.size()) % _tests.size();
+    CC_SAFE_DESTROY(_test);
+    _test = _tests[_nextIndex](_windowInfo);
 }
 
 void GameApp::OnMouseLUp(WORD x, WORD y)
+{
+}
+
+void GameApp::OnMouseRDown(WORD x, WORD y)
+{
+    _nextIndex = (++_nextIndex) % _tests.size();
+    CC_SAFE_DESTROY(_test);
+    _test = _tests[_nextIndex](_windowInfo);
+}
+
+void GameApp::OnMouseRUp(WORD x, WORD y)
 {
 }
 
@@ -249,11 +265,17 @@ LRESULT CALLBACK GameApp::MessageHandler(HWND hWnd, DWORD msg, WPARAM wParam, LP
     case WM_LBUTTONUP:
         OnMouseLUp(LOWORD(lParam), HIWORD(lParam));
         break;
+    case WM_RBUTTONDOWN:
+        OnMouseRDown(LOWORD(lParam), HIWORD(lParam));
+        break;
+    case WM_RBUTTONUP:
+        OnMouseRUp(LOWORD(lParam), HIWORD(lParam));
+        break;
     case WM_MBUTTONDOWN:
         OnMouseMDown(LOWORD(lParam), HIWORD(lParam));
         break;
     case WM_MBUTTONUP:
-    OnMouseMUp(LOWORD(lParam), HIWORD(lParam));
+        OnMouseMUp(LOWORD(lParam), HIWORD(lParam));
         break;
     case WM_MOUSEMOVE:
         OnMouseMove(LOWORD(lParam), HIWORD(lParam));

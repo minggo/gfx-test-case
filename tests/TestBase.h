@@ -13,7 +13,8 @@ typedef struct WindowInfo
 
 #define DEFINE_CREATE_METHOD(className) \
 static TestBaseI* create(const WindowInfo& info) { \
-    return CC_NEW(className(info)); \
+    TestBaseI* test =  CC_NEW(className(info)); \
+    if (test->initialize()) return test; else { CC_SAFE_DESTROY(test); return nullptr; } \
 }
 
 class TestBaseI : public Object
@@ -22,7 +23,7 @@ public:
     TestBaseI(const WindowInfo& info);
     virtual void tick(float dt) = 0;
 
-    virtual bool initialize() = 0;
+    virtual bool initialize() { return true; };
     virtual void Destroy();
     virtual ~TestBaseI() = default;
 
