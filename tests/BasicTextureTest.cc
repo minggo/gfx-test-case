@@ -24,8 +24,8 @@ bool BasicTexture::initialize()
     createShader();
     createVertexBuffer();
     createInputAssembler();
-    createPipeline();
     createTexture();
+    createPipeline();
     return true;
 }
 
@@ -53,12 +53,12 @@ void BasicTexture::createShader()
     layout(std140) uniform MVP_Matrix
     {
         mat4 u_mvpMatrix;
-    }
+    };
    
     void main()
     {
         gl_Position = u_mvpMatrix * vec4(a_position, 0, 1);
-        v_texcoord = a_position * 0.5 + 0.5;
+        texcoord = a_position * 0.5 + 0.5;
         texcoord = vec2(texcoord.x, 1.0 - texcoord.y);
     }
     )";
@@ -87,7 +87,7 @@ void BasicTexture::createShader()
     uniform sampler2D u_texture;
     out vec4 o_color;
     void main () {
-        o_color = texture2D(u_texture, texcoord);
+        o_color = texture(u_texture, texcoord);
     }
     )";
 #endif
@@ -99,7 +99,7 @@ void BasicTexture::createShader()
     GFXUniformSamplerList sampler = { {1, "u_texture", GFXType::SAMPLER2D, 1} };
 
     GFXShaderInfo shaderInfo;
-    shaderInfo.name = "Basic Triangle";
+    shaderInfo.name = "Basic Texture";
     shaderInfo.stages = std::move(shaderStageList);
     shaderInfo.blocks = std::move(uniformBlockList);
     shaderInfo.samplers = std::move(sampler);
@@ -156,6 +156,12 @@ void BasicTexture::createPipeline()
     };
     GFXBindingLayoutInfo bindingLayoutInfo = { bindingList };
     _bindingLayout = _device->CreateGFXBindingLayout(bindingLayoutInfo);
+    
+    _uniformBuffer->Update(&_transformToLeft, 0, sizeof(_transformToLeft));
+    _bindingLayout->BindBuffer(0, _uniformBuffer);
+    _bindingLayout->BindSampler(1, _sampler);
+    _bindingLayout->BindTextureView(1, _texView);
+    _bindingLayout->Update();
 
     GFXPipelineLayoutInfo pipelineLayoutInfo;
     pipelineLayoutInfo.layouts = { _bindingLayout };
@@ -183,7 +189,7 @@ void BasicTexture::createTexture()
     data.copy(img->getData(), img->getDataLen());
     
     GFXBufferInfo vertexBufferInfo = {
-        GFXBufferUsage::UNIFORM,
+        GFXBufferUsage::TRANSFER_SRC,
         GFXMemoryUsage::HOST,
         1,
         static_cast<uint>(img->getDataLen()),
@@ -205,9 +211,6 @@ void BasicTexture::createTexture()
     textureRegion.tex_extent.height = img->getHeight();
     textureRegion.tex_extent.depth = 1;
     
-    _transformToLeft.translate(0.5f, 0, 0);
-    _transformToLeft.scale(0.5f);
-    
     //create sampler
     GFXSamplerInfo samplerInfo;
     _sampler = _device->CreateGFXSampler(samplerInfo);
@@ -222,13 +225,7 @@ void BasicTexture::tick(float dt) {
 
     GFXRect render_area = {0, 0, _device->width(), _device->height() };
     _time += dt;
-    GFXColor clear_color = {1.0f, 0, 0, 1.0f};
-
-    _uniformBuffer->Update(&_transformToLeft, 0, sizeof(_transformToLeft));
-    _bindingLayout->BindBuffer(0, _uniformBuffer);
-    _bindingLayout->BindSampler(1, _sampler);
-    _bindingLayout->BindTextureView(1, _texView);
-    _bindingLayout->Update();
+    GFXColor clear_color = {0, 0, 0, 1.0f};
 
     _commandBuffer->Begin();
     _commandBuffer->BeginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
