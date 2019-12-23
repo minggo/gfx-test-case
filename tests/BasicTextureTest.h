@@ -35,11 +35,6 @@ private:
     GFXBuffer* _image = nullptr;
     GFXSampler* _sampler = nullptr;
     GFXTextureView* _texView = nullptr;
-    GFXBufferTextureCopy textureRegion;
-    
-    Mat4 _transformToLeft;
-    Mat4 _transformToRight;
-    float _time = 0.0f;
 };
 
 NS_CC_END

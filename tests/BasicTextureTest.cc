@@ -157,7 +157,8 @@ void BasicTexture::createPipeline()
     GFXBindingLayoutInfo bindingLayoutInfo = { bindingList };
     _bindingLayout = _device->CreateGFXBindingLayout(bindingLayoutInfo);
     
-    _uniformBuffer->Update(&_transformToLeft, 0, sizeof(_transformToLeft));
+    Mat4 mvpMatrix;
+    _uniformBuffer->Update(&mvpMatrix, 0, sizeof(mvpMatrix));
     _bindingLayout->BindBuffer(0, _uniformBuffer);
     _bindingLayout->BindSampler(1, _sampler);
     _bindingLayout->BindTextureView(1, _texView);
@@ -206,10 +207,16 @@ void BasicTexture::createTexture()
     
     _texture = _device->CreateGFXTexture(textureInfo);
     
+    GFXBufferTextureCopy textureRegion;
     textureRegion.buff_tex_height = img->getHeight();
     textureRegion.tex_extent.width = img->getWidth();
     textureRegion.tex_extent.height = img->getHeight();
     textureRegion.tex_extent.depth = 1;
+    
+    GFXBufferTextureCopyList regions;
+    regions.push_back(std::move(textureRegion));
+    
+    _device->CopyBuffersToTexture(_image, _texture, regions);
     
     //create sampler
     GFXSamplerInfo samplerInfo;
@@ -224,7 +231,6 @@ void BasicTexture::createTexture()
 void BasicTexture::tick(float dt) {
 
     GFXRect render_area = {0, 0, _device->width(), _device->height() };
-    _time += dt;
     GFXColor clear_color = {0, 0, 0, 1.0f};
 
     _commandBuffer->Begin();
@@ -232,7 +238,6 @@ void BasicTexture::tick(float dt) {
     _commandBuffer->BindInputAssembler(_inputAssembler);
     _commandBuffer->BindBindingLayout(_bindingLayout);
     _commandBuffer->BindPipelineState(_pipelineState);
-    _commandBuffer->CopyBufferToTexture(_image, _texture, GFXTextureLayout::GENERAL, &textureRegion, 1);
     _commandBuffer->Draw(_inputAssembler);
     _commandBuffer->EndRenderPass();
     _commandBuffer->End();
