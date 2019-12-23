@@ -6,9 +6,9 @@ endmacro (set_xcode_property)
 message(STATUS "App: ${APP_NAME}...")
 
 # ---------------------------------------------
+# set cocos platform, base, math, external files
 set(CC_PLATFORM_SOURCES
     ${COCOS_SRC_PATH}/platform/CCApplication.h
-    # ${COCOS_SRC_PATH}/platform/CCCanvasRenderingContext2D.h
     ${COCOS_SRC_PATH}/platform/CCDevice.h
     ${COCOS_SRC_PATH}/platform/CCFileUtils.h
     ${COCOS_SRC_PATH}/platform/CCGL.h
@@ -24,51 +24,15 @@ set(CC_PLATFORM_SOURCES
 )
 
 if(APPLE)
-
     list(APPEND CC_PLATFORM_SOURCES
         ${COCOS_SRC_PATH}/platform/apple/CCFileUtils-apple.h
         ${COCOS_SRC_PATH}/platform/apple/CCDevice-apple.mm
         ${COCOS_SRC_PATH}/platform/apple/CCFileUtils-apple.mm
-        # ${COCOS_SRC_PATH}/platform/apple/CCCanvasRenderingContext2D-apple.mm
         ${COCOS_SRC_PATH}/platform/apple/CCDevice-apple.h
     )
-
-    if(MACOSX) 
-
-        list(APPEND CC_PLATFORM_SOURCES
-            ${COCOS_SRC_PATH}/platform/mac/cocos2d-prefix.pch
-            ${COCOS_SRC_PATH}/platform/mac/CCPlatformDefine-mac.h
-            ${COCOS_SRC_PATH}/platform/mac/CCDevice-mac.mm
-            ${COCOS_SRC_PATH}/platform/mac/CCApplication-mac.mm
-            ${COCOS_SRC_PATH}/platform/mac/CCGL-mac.h
-            ${COCOS_SRC_PATH}/platform/desktop/CCGLView-desktop.cpp
-            ${COCOS_SRC_PATH}/platform/mac/CCModuleConfigMac.release.xcconfig
-            ${COCOS_SRC_PATH}/platform/mac/CCModuleConfigMac.debug.xcconfig
-            ## require code from ios ?
-            ${COCOS_SRC_PATH}/platform/ios/CCReachability.cpp
-        )
-    elseif(IOS)
-        list(APPEND CC_PLATFORM_SOURCES
-            # ${COCOS_SRC_PATH}/platform/ios/CCGL-ios.h
-            # # ${COCOS_SRC_PATH}/platform/ios/CCReachability.h
-            # # ${COCOS_SRC_PATH}/platform/ios/CCApplication-ios.mm
-            # ${COCOS_SRC_PATH}/platform/ios/cocos2d-prefix.pch
-            # # ${COCOS_SRC_PATH}/platform/ios/CCEAGLView-ios.mm
-            # # ${COCOS_SRC_PATH}/platform/ios/OpenGL_Internal-ios.h
-            # # ${COCOS_SRC_PATH}/platform/ios/CCDevice-ios.mm
-            # # ${COCOS_SRC_PATH}/platform/ios/CCReachability.cpp
-            # ${COCOS_SRC_PATH}/platform/ios/CCPlatformDefine-ios.h
-            # # ${COCOS_SRC_PATH}/platform/ios/CCEAGLView-ios.h
-            # ${COCOS_SRC_PATH}/platform/ios/CCImage-ios.mm
-            # # ${COCOS_SRC_PATH}/platform/ios/CCModuleConfigIOS.release.xcconfig
-            # # ${COCOS_SRC_PATH}/platform/ios/CCModuleConfigIOS.debug.xcconfig
-        )
-    endif()
 endif()
 
-
 set(CC_BASE_HEADERS 
-    ${COCOS_SRC_PATH}/cocos2d.h
     ${COCOS_SRC_PATH}/base/base64.h
     ${COCOS_SRC_PATH}/base/CCAutoreleasePool.h
     ${COCOS_SRC_PATH}/base/ccCArray.h
@@ -97,22 +61,9 @@ set(CC_BASE_HEADERS
     ${COCOS_SRC_PATH}/base/uthash.h
     ${COCOS_SRC_PATH}/base/utlist.h
     ${COCOS_SRC_PATH}/base/ZipUtils.h
-
-    ${COCOS_SRC_PATH}/math/CCGeometry.h
-    ${COCOS_SRC_PATH}/math/CCMath.h
-    ${COCOS_SRC_PATH}/math/CCMathBase.h
-    ${COCOS_SRC_PATH}/math/CCVertex.h
-    ${COCOS_SRC_PATH}/math/Mat4.h
-    ${COCOS_SRC_PATH}/math/MathUtil.h
-    ${COCOS_SRC_PATH}/math/Quaternion.h
-    ${COCOS_SRC_PATH}/math/Vec2.h
-    ${COCOS_SRC_PATH}/math/Vec3.h
-    ${COCOS_SRC_PATH}/math/Vec4.h
 )
 
-
 set(CC_BASE_SOURCES
-    ${COCOS_SRC_PATH}/cocos2d.cpp
     ${COCOS_SRC_PATH}/base/base64.cpp
     ${COCOS_SRC_PATH}/base/CCAutoreleasePool.cpp
     ${COCOS_SRC_PATH}/base/ccCArray.cpp
@@ -135,7 +86,22 @@ set(CC_BASE_SOURCES
     ${COCOS_SRC_PATH}/base/pvr.cpp
     ${COCOS_SRC_PATH}/base/TGAlib.cpp
     ${COCOS_SRC_PATH}/base/ZipUtils.cpp
-    
+)
+
+set(CC_MATH_HEADERS
+    ${COCOS_SRC_PATH}/math/CCGeometry.h
+    ${COCOS_SRC_PATH}/math/CCMath.h
+    ${COCOS_SRC_PATH}/math/CCMathBase.h
+    ${COCOS_SRC_PATH}/math/CCVertex.h
+    ${COCOS_SRC_PATH}/math/Mat4.h
+    ${COCOS_SRC_PATH}/math/MathUtil.h
+    ${COCOS_SRC_PATH}/math/Quaternion.h
+    ${COCOS_SRC_PATH}/math/Vec2.h
+    ${COCOS_SRC_PATH}/math/Vec3.h
+    ${COCOS_SRC_PATH}/math/Vec4.h
+)
+
+set(CC_MATH_SOURCES
     ${COCOS_SRC_PATH}/math/CCGeometry.cpp
     ${COCOS_SRC_PATH}/math/CCVertex.cpp
     ${COCOS_SRC_PATH}/math/Mat4.cpp
@@ -145,6 +111,7 @@ set(CC_BASE_SOURCES
     ${COCOS_SRC_PATH}/math/Vec3.cpp
     ${COCOS_SRC_PATH}/math/Vec4.cpp
 )
+
 include(${COCOS_EXTERNAL_PATH}/CMakeLists.txt)
 include(${COCOS_ROOT_PATH}/tests/CMakeLists.txt)
 
@@ -183,8 +150,12 @@ set(ALL_FILES
     ${CC_PLATFORM_SOURCES}
     ${CC_BASE_HEADERS} 
     ${CC_BASE_SOURCES}
+    ${CC_MATH_HEADERS}
+    ${CC_MATH_SOURCES}
     ${CC_EXTERNAL_SROUCES}
     ${cc_common_res}
+    ${COCOS_SRC_PATH}/cocos2d.h
+    ${COCOS_SRC_PATH}/cocos2d.cpp
     )
 
 if(COCOS_UNICODE)
@@ -192,6 +163,13 @@ if(COCOS_UNICODE)
 endif()
 
 add_executable(${APP_NAME} ${ALL_FILES})
+
+source_group(TREE ${COCOS_SRC_PATH}/platform PREFIX "Header Files/platform" FILES ${CC_PLATFORM_SOURCES})
+source_group(TREE ${COCOS_SRC_PATH}/base PREFIX "Header Files/base" FILES ${CC_BASE_HEADERS})
+source_group(TREE ${COCOS_SRC_PATH}/base PREFIX "Source Files/base" FILES ${CC_BASE_SOURCES})
+source_group(TREE ${COCOS_SRC_PATH}/math PREFIX "Header Files/math" FILES ${CC_MATH_HEADERS})
+source_group(TREE ${COCOS_SRC_PATH}/math PREFIX "Source Files/math" FILES ${CC_MATH_SOURCES})
+source_group(TREE ${COCOS_EXTERNAL_PATH}/sources PREFIX "Header Files/external" FILES ${CC_EXTERNAL_SROUCES})
 
 set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
 set_xcode_property(${APP_NAME} INFOPLIST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
