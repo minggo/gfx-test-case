@@ -1,6 +1,7 @@
 #include "BasicTextureTest.h"
 #include "gfx-gles2/GFXGLES2.h"
 #include "gfx-gles3/GFXGLES3.h"
+#include "cocos2d.h"
 
 NS_CC_BEGIN
 
