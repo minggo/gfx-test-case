@@ -1,7 +1,7 @@
 # add -lite external here for test project
 
 # include modules
-if(WIN32 OR IOS)
+if(WIN32)
     set(CMAKE_MODULE_PATH ${COCOS_EXTERNAL_PATH}/cmake)
     include(CocosBuildSet)
 endif()
@@ -137,31 +137,24 @@ set(CC_MATH_SOURCES
 )
 
 include(${COCOS_EXTERNAL_PATH}/CMakeLists.txt)
+list(REMOVE_ITEM CC_EXTERNAL_LIBS "glfw3")
 
 # resources
 set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
-if(APPLE OR VS)
+if(VS)
     cocos_mark_multi_resources(cc_common_res RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
 endif()
 
 # add test cases
 include(${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt)
 
-#
 if(WIN32)
     add_definitions("-DCC_STATIC")
     add_subdirectory(win)
 elseif(IOS)
 	add_subdirectory(ios)
 elseif(ANDROID)
-	add_subdirectory(android/app/src/main/cpp)
-endif()
-
-if(VS OR XCODE)
-    source_group(TREE ${COCOS_SRC_PATH}/platform PREFIX "Header Files/platform" FILES ${CC_PLATFORM_SOURCES})
-    source_group(TREE ${COCOS_SRC_PATH}/base PREFIX "Header Files/base" FILES ${CC_BASE_HEADERS})
-    source_group(TREE ${COCOS_SRC_PATH}/base PREFIX "Source Files/base" FILES ${CC_BASE_SOURCES})
-    source_group(TREE ${COCOS_SRC_PATH}/math PREFIX "Header Files/math" FILES ${CC_MATH_HEADERS})
-    source_group(TREE ${COCOS_SRC_PATH}/math PREFIX "Source Files/math" FILES ${CC_MATH_SOURCES})
-    source_group(TREE ${COCOS_EXTERNAL_PATH}/sources PREFIX "Header Files/external" FILES ${CC_EXTERNAL_SROUCES})
+    add_subdirectory(android/app/src/main/cpp)
+elseif(APPLE)
+    add_subdirectory(mac)
 endif()
