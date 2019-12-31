@@ -147,10 +147,10 @@ namespace
                 GFXBufferFlagBit::NONE };
             nearFarUniformBuffer = device->CreateGFXBuffer(uniformBufferInfo);
             
-            float near = 0.1f;
-            float far = 100.0f;
-            nearFarUniformBuffer->Update(&near, 0, sizeof(near));
-            nearFarUniformBuffer->Update(&far, sizeof(near), sizeof(far));
+            float nearValue = 0.1f;
+            float farValue = 100.0f;
+            nearFarUniformBuffer->Update(&nearValue, 0, sizeof(nearValue));
+            nearFarUniformBuffer->Update(&farValue, sizeof(nearValue), sizeof(farValue));
         }
                                          
          void createInputAssembler()
