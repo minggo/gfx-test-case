@@ -40,7 +40,6 @@ set(ALL_FILES
     ${CC_MATH_SOURCES}
     ${CC_EXTERNAL_SROUCES}
     ${cc_common_res}
-    ${CC_DEVICE_SOURCES}
     ${COCOS_SRC_PATH}/cocos2d.h
     ${COCOS_SRC_PATH}/cocos2d.cpp
     )
@@ -69,7 +68,6 @@ target_include_directories(${APP_NAME} PUBLIC
     ${COCOS_EXTERNAL_PATH}/sources
     ${CC_EXTERNAL_INCLUDES}
     ${CC_EXTERNAL_INCLUDES}/v8
-    ${DEVICE_INCLUDE_PATH}
 )
 
 if(MACOSX)
@@ -85,7 +83,6 @@ source_group(TREE ${COCOS_SRC_PATH}/base PREFIX "Source Files/base" FILES ${CC_B
 source_group(TREE ${COCOS_SRC_PATH}/math PREFIX "Header Files/math" FILES ${CC_MATH_HEADERS})
 source_group(TREE ${COCOS_SRC_PATH}/math PREFIX "Source Files/math" FILES ${CC_MATH_SOURCES})
 source_group(TREE ${COCOS_EXTERNAL_PATH}/sources PREFIX "Header Files/external" FILES ${CC_EXTERNAL_SROUCES})
-source_group(TREE ${COCOS_ROOT_PATH}/src/device PREFIX "Header Files/device" FILES ${CC_DEVICE_SOURCES})
 
 # setup default flags
 target_compile_definitions(${APP_NAME} PUBLIC 

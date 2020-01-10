@@ -2,8 +2,6 @@
 #include "gfx-gles2/GFXGLES2.h"
 #include "gfx-gles3/GFXGLES3.h"
 #include "cocos2d.h"
-#include "BunnyData.h"
-#include "FontDefinition.h"
 
 NS_CC_BEGIN
 
@@ -167,22 +165,16 @@ void StencilTest::createBuffers()
 
 void StencilTest::createTextures()
 {
-    //load label
-    FontDefinitions fontDef;
-    fontDef._dimensions = Size(512, 512);
-    fontDef._alignment = TextHAlignment::CENTER;
-    fontDef._vertAlignment = TextVAlignment::CENTER;
-    fontDef._fontSize = 64;
-    int width = 0;
-    int height = 0;
-    bool hasPremulplyAlpha = false;
-    Data labelData = Font::getTextureDataForText("Stencil Element", fontDef, Font::TextAlign::CENTER, width, height, hasPremulplyAlpha);
-    CC_ASSERT(!labelData.isNull());
+    //load stencil image
+    auto stencilImage = new cocos2d::Image();
+    stencilImage->autorelease();
+    bool ret = stencilImage->initWithImageFile("stencil.jpg");
+    assert(ret);
     
     GFXBufferTextureCopy labelTextureRegion;
-    labelTextureRegion.buff_tex_height = height;
-    labelTextureRegion.tex_extent.width = width;
-    labelTextureRegion.tex_extent.height = height;
+    labelTextureRegion.buff_tex_height = stencilImage->getHeight();
+    labelTextureRegion.tex_extent.width = stencilImage->getWidth();
+    labelTextureRegion.tex_extent.height = stencilImage->getHeight();
     labelTextureRegion.tex_extent.depth = 1;
     
     GFXBufferTextureCopyList regions;
@@ -192,20 +184,20 @@ void StencilTest::createTextures()
         GFXBufferUsage::TRANSFER_SRC,
         GFXMemoryUsage::HOST,
         1,
-        static_cast<uint>(labelData.getSize()),
+        static_cast<uint>(stencilImage->getDataLen()),
         GFXBufferFlagBit::NONE };
     
-    auto imageBuffer = _device->CreateGFXBuffer(imageBufferInfo);
-    imageBuffer->Update(labelData.getBytes(), 0, static_cast<uint>(labelData.getSize()));
+    auto stencilImageBuffer = _device->CreateGFXBuffer(imageBufferInfo);
+    stencilImageBuffer->Update(stencilImage->getData(), 0, imageBufferInfo.size);
     
     GFXTextureInfo labelTextureInfo;
     labelTextureInfo.usage = GFXTextureUsage::SAMPLED;
-    labelTextureInfo.format = GFXFormat::RGBA8;
-    labelTextureInfo.width = width;
-    labelTextureInfo.height = height;
+    labelTextureInfo.format = GFXFormat::RGB8;
+    labelTextureInfo.width = stencilImage->getWidth();
+    labelTextureInfo.height = stencilImage->getHeight();
     
     _labelTexture = _device->CreateGFXTexture(labelTextureInfo);
-    _device->CopyBuffersToTexture(imageBuffer, _labelTexture, regions);
+    _device->CopyBuffersToTexture(stencilImageBuffer, _labelTexture, regions);
     
     GFXTextureViewInfo texViewInfo;
     texViewInfo.texture = _labelTexture;
@@ -215,7 +207,7 @@ void StencilTest::createTextures()
     //load uv_checker_02.jpg
     auto img = new cocos2d::Image();
     img->autorelease();
-    bool ret = img->initWithImageFile("uv_checker_02.jpg");
+    ret = img->initWithImageFile("uv_checker_02.jpg");
     assert(ret);
     
     imageBufferInfo.size = static_cast<uint>(img->getDataLen());
@@ -246,11 +238,13 @@ void StencilTest::createTextures()
     uvTexViewInfo.texture = _uvCheckerTexture;
     uvTexViewInfo.format = GFXFormat::RGB8;
     _uvCheckerTexView = _device->CreateGFXTextureView(uvTexViewInfo);
-    CC_SAFE_DESTROY(image);
     
     //create sampler
     GFXSamplerInfo samplerInfo;
     _sampler = _device->CreateGFXSampler(samplerInfo);
+    
+    CC_SAFE_DESTROY(stencilImageBuffer);
+    CC_SAFE_DESTROY(image);
 }
 
 void StencilTest::createInputAssembler()

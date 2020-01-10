@@ -57,20 +57,6 @@ elseif(APPLE)
     )
 endif()
 
-set(DEVICE_INCLUDE_PATH ${CMAKE_CURRENT_LIST_DIR}/device)
-set(CC_DEVICE_SOURCES ${CMAKE_CURRENT_LIST_DIR}/device/FontDefinition.h)
-if(APPLE)
-    list(APPEND CC_DEVICE_SOURCES 
-            ${CMAKE_CURRENT_LIST_DIR}/device/apple/Device-apple.h
-            ${CMAKE_CURRENT_LIST_DIR}/device/apple/Device-apple.mm
-        )
-    if(IOS)
-        list(APPEND CC_DEVICE_SOURCES 
-            ${CMAKE_CURRENT_LIST_DIR}/device/apple/Device-ios.mm
-        )
-    endif()
-endif()
-
 set(CC_BASE_HEADERS 
     ${COCOS_SRC_PATH}/base/base64.h
     ${COCOS_SRC_PATH}/base/CCAutoreleasePool.h
@@ -162,20 +148,17 @@ endif()
 set(APP_UI_RES
     "${GAME_RES_FOLDER}/uv_checker_01.jpg"
     "${GAME_RES_FOLDER}/uv_checker_02.jpg"
+    "${GAME_RES_FOLDER}/stencil.jpg"
 )
 
 set(PLATFORM_SPECIFIC_LIBS)
 if(APPLE)
     include_directories(/System/Library/Frameworks)
-    find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
     find_library(FOUNDATION_LIBRARY Foundation)
-    find_library(OPENAL_LIBRARY OpenAL)
     find_library(QUARTZCORE_LIBRARY QuartzCore)
     find_library(GAMECONTROLLER_LIBRARY GameController)
     find_library(METAL_LIBRARY Metal)
     set(COCOS_APPLE_LIBS
-        ${OPENAL_LIBRARY}
-        ${AUDIOTOOLBOX_LIBRARY}
         ${QUARTZCORE_LIBRARY}
         ${FOUNDATION_LIBRARY}
         ${GAMECONTROLLER_LIBRARY}
@@ -204,25 +187,9 @@ if(APPLE)
         # Locate system libraries on iOS
         find_library(UIKIT_LIBRARY UIKit)
         find_library(OPENGLES_LIBRARY OpenGLES)
-        find_library(CORE_MOTION_LIBRARY CoreMotion)
-        find_library(AVKIT_LIBRARY AVKit)
-        find_library(CORE_MEDIA_LIBRARY CoreMedia)
-        find_library(CORE_TEXT_LIBRARY CoreText)
-        find_library(SECURITY_LIBRARY Security)
-        find_library(CORE_GRAPHICS_LIBRARY CoreGraphics)
-        find_library(AV_FOUNDATION_LIBRARY AVFoundation)
-        find_library(WEBKIT_LIBRARY WebKit)
         list(APPEND PLATFORM_SPECIFIC_LIBS
                 ${UIKIT_LIBRARY}
                 ${OPENGLES_LIBRARY}
-                ${CORE_MOTION_LIBRARY}
-                ${AVKIT_LIBRARY}
-                ${CORE_MEDIA_LIBRARY}
-                ${CORE_TEXT_LIBRARY}
-                ${SECURITY_LIBRARY}
-                ${CORE_GRAPHICS_LIBRARY}
-                ${AV_FOUNDATION_LIBRARY}
-                ${WEBKIT_LIBRARY}
                 ${COCOS_APPLE_LIBS}
                 )
     endif()
