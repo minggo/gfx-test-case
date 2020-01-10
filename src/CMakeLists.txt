@@ -151,49 +151,6 @@ set(APP_UI_RES
     "${GAME_RES_FOLDER}/stencil.jpg"
 )
 
-set(PLATFORM_SPECIFIC_LIBS)
-if(APPLE)
-    include_directories(/System/Library/Frameworks)
-    find_library(FOUNDATION_LIBRARY Foundation)
-    find_library(QUARTZCORE_LIBRARY QuartzCore)
-    find_library(GAMECONTROLLER_LIBRARY GameController)
-    find_library(METAL_LIBRARY Metal)
-    set(COCOS_APPLE_LIBS
-        ${QUARTZCORE_LIBRARY}
-        ${FOUNDATION_LIBRARY}
-        ${GAMECONTROLLER_LIBRARY}
-        ${METAL_LIBRARY}
-        )
-        
-    if(MACOSX)
-        list(APPEND PREBUILT_SPECIFIC_LIBS GLFW3)
-
-        find_library(COCOA_LIBRARY Cocoa)
-        find_library(OPENGL_LIBRARY OpenGL)
-        find_library(APPLICATIONSERVICES_LIBRARY ApplicationServices)
-        find_library(IOKIT_LIBRARY IOKit)
-        find_library(APPKIT_LIBRARY AppKit)
-        find_library(ICONV_LIBRARY iconv)
-        list(APPEND PLATFORM_SPECIFIC_LIBS
-                ${COCOA_LIBRARY}
-                ${OPENGL_LIBRARY}
-                ${APPLICATIONSERVICES_LIBRARY}
-                ${IOKIT_LIBRARY}
-                ${COCOS_APPLE_LIBS}
-                ${APPKIT_LIBRARY}
-                ${ICONV_LIBRARY}
-                )
-    elseif(IOS)
-        # Locate system libraries on iOS
-        find_library(UIKIT_LIBRARY UIKit)
-        find_library(OPENGLES_LIBRARY OpenGLES)
-        list(APPEND PLATFORM_SPECIFIC_LIBS
-                ${UIKIT_LIBRARY}
-                ${OPENGLES_LIBRARY}
-                ${COCOS_APPLE_LIBS}
-                )
-    endif()
-endif()
 # add test cases
 include(${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt)
 

@@ -53,6 +53,16 @@ add_executable(${APP_NAME} ${ALL_FILES})
 set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
 set_xcode_property(${APP_NAME} INFOPLIST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 
+# Locate system libraries on iOS
+find_library(UIKIT_LIBRARY UIKit)
+find_library(OPENGLES_LIBRARY OpenGLES)
+find_library(QUARTZCORE_LIBRARY QuartzCore)
+list(APPEND PLATFORM_SPECIFIC_LIBS
+     ${UIKIT_LIBRARY}
+     ${OPENGLES_LIBRARY}
+     ${QUARTZCORE_LIBRARY}
+)
+
 target_link_libraries(${APP_NAME} 
     ${PLATFORM_SPECIFIC_LIBS} 
     Core 
