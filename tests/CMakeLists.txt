@@ -6,6 +6,7 @@ set(GFX_TESTCASE_HEADER
     ${COCOS_ROOT_PATH}/tests/DepthTest.h
     ${COCOS_ROOT_PATH}/tests/StencilTest.h
     ${COCOS_ROOT_PATH}/tests/BunnyData.h
+    ${COCOS_ROOT_PATH}/tests/BlendTest.h
 )
 
 set(GFX_TESTCASE_SOURCE
@@ -15,9 +16,12 @@ set(GFX_TESTCASE_SOURCE
     ${COCOS_ROOT_PATH}/tests/BasicTextureTest.cc
     ${COCOS_ROOT_PATH}/tests/DepthTest.cc
     ${COCOS_ROOT_PATH}/tests/StencilTest.cc
+    ${COCOS_ROOT_PATH}/tests/BlendTest.cc
 )
 
 if(APPLE AND NOT IOS)
 list(REMOVE_ITEM GFX_TESTCASE_HEADER ${COCOS_ROOT_PATH}/tests/DepthTest.h)
 list(REMOVE_ITEM GFX_TESTCASE_SOURCE ${COCOS_ROOT_PATH}/tests/DepthTest.cc)
+list(REMOVE_ITEM GFX_TESTCASE_HEADER ${COCOS_ROOT_PATH}/tests/StencilTest.h)
+list(REMOVE_ITEM GFX_TESTCASE_SOURCE ${COCOS_ROOT_PATH}/tests/StencilTest.cc)
 endif()
