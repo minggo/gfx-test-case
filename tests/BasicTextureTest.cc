@@ -198,7 +198,7 @@ void BasicTexture::createVertexBuffer()
           GFXBufferFlagBit::NONE };
 
     _vertexBuffer = _device->createBuffer(vertexBufferInfo);
-    _vertexBuffer->Update(vertexData, 0, sizeof(vertexData));
+    _vertexBuffer->update(vertexData, 0, sizeof(vertexData));
 
     GFXBufferInfo uniformBufferInfo = {
            GFXBufferUsage::UNIFORM,
@@ -228,11 +228,11 @@ void BasicTexture::createPipeline()
     _bindingLayout = _device->createBindingLayout(bindingLayoutInfo);
     
     Mat4 mvpMatrix;
-    _uniformBuffer->Update(&mvpMatrix, 0, sizeof(mvpMatrix));
+    _uniformBuffer->update(&mvpMatrix, 0, sizeof(mvpMatrix));
     _bindingLayout->BindBuffer(0, _uniformBuffer);
     _bindingLayout->BindSampler(1, _sampler);
     _bindingLayout->BindTextureView(1, _texView);
-    _bindingLayout->Update();
+    _bindingLayout->update();
 
     GFXPipelineLayoutInfo pipelineLayoutInfo;
     pipelineLayoutInfo.layouts = { _bindingLayout };
@@ -243,7 +243,7 @@ void BasicTexture::createPipeline()
     pipelineInfo.shader = _shader;
     pipelineInfo.is = { _inputAssembler->attributes() };
     pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo.render_pass = _device->mainWindow()->renderPass();
 
     _pipelineState = _device->createPipelineState(pipelineInfo);
 
@@ -267,7 +267,7 @@ void BasicTexture::createTexture()
         GFXBufferFlagBit::NONE };
     
     _image = _device->createBuffer(vertexBufferInfo);
-    _image->Update(data.getBytes(), 0, static_cast<uint>(data.getSize()));
+    _image->update(data.getBytes(), 0, static_cast<uint>(data.getSize()));
     
     GFXTextureInfo textureInfo;
     textureInfo.usage = GFXTextureUsage::SAMPLED;

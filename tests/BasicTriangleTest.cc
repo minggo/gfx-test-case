@@ -167,7 +167,7 @@ void BasicTriangle::createVertexBuffer()
           GFXBufferFlagBit::NONE };
 
     _vertexBuffer = _device->createBuffer(vertexBufferInfo);
-    _vertexBuffer->Update(vertexData, 0, sizeof(vertexData));
+    _vertexBuffer->update(vertexData, 0, sizeof(vertexData));
 
     GFXBufferInfo uniformBufferInfo = {
            GFXBufferUsage::UNIFORM,
@@ -202,7 +202,7 @@ void BasicTriangle::createPipeline()
     pipelineInfo.shader = _shader;
     pipelineInfo.is = { _inputAssembler->attributes() };
     pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo.render_pass = _device->mainWindow()->renderPass();
 
     _pipelineState = _device->createPipelineState(pipelineInfo);
 
@@ -221,9 +221,9 @@ void BasicTriangle::tick(float dt) {
     uniformColor.b = 0.0f;
     uniformColor.a = 1.0f;
 
-    _uniformBuffer->Update(&uniformColor, 0, sizeof(uniformColor));
+    _uniformBuffer->update(&uniformColor, 0, sizeof(uniformColor));
     _bindingLayout->BindBuffer(0, _uniformBuffer);
-    _bindingLayout->Update();
+    _bindingLayout->update();
 
     _commandBuffer->Begin();
     _commandBuffer->BeginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);

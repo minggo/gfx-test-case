@@ -235,7 +235,7 @@ void ParticleTest::createVertexBuffer()
         GFXBufferFlagBit::NONE };
     
     _indexBuffer = _device->createBuffer(indexBufferInfo);
-    _indexBuffer->Update(_ibufferArray, 0, sizeof(_ibufferArray));
+    _indexBuffer->update(_ibufferArray, 0, sizeof(_ibufferArray));
     
     for (size_t i = 0; i < PARTICLE_COUNT; ++i)
     {
@@ -254,9 +254,9 @@ void ParticleTest::createVertexBuffer()
     Mat4 model, view, projection;
     Mat4::createPerspective(60.0f, 1.0f * _device->width() / _device->height(), 0.01f, 1000.0f, &projection);
     Mat4::createLookAt(Vec3(30.0f , 20.0f, 30.0f), Vec3(0.0f, 2.5f, 0.0f), Vec3(0.0f, 1.0f, 0.f), &view);
-    _uniformBuffer->Update(model.m, 0, sizeof(model));
-    _uniformBuffer->Update(view.m, sizeof(model), sizeof(view));
-    _uniformBuffer->Update(projection.m, sizeof(model) + sizeof(view), sizeof(projection));
+    _uniformBuffer->update(model.m, 0, sizeof(model));
+    _uniformBuffer->update(view.m, sizeof(model), sizeof(view));
+    _uniformBuffer->update(projection.m, sizeof(model) + sizeof(view), sizeof(projection));
 }
 
 void ParticleTest::createInputAssembler()
@@ -285,7 +285,7 @@ void ParticleTest::createPipeline()
     _bindingLayout->BindBuffer(0, _uniformBuffer);
     _bindingLayout->BindSampler(1, _sampler);
     _bindingLayout->BindTextureView(1, _texView);
-    _bindingLayout->Update();
+    _bindingLayout->update();
 
     GFXPipelineLayoutInfo pipelineLayoutInfo;
     pipelineLayoutInfo.layouts = { _bindingLayout };
@@ -296,7 +296,7 @@ void ParticleTest::createPipeline()
     pipelineInfo.shader = _shader;
     pipelineInfo.is = { _inputAssembler->attributes() };
     pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo.render_pass = _device->mainWindow()->renderPass();
     pipelineInfo.bs.targets[0].is_blend = true;
     pipelineInfo.bs.targets[0].blend_eq = GFXBlendOp::ADD;
     pipelineInfo.bs.targets[0].blend_alpha_eq = GFXBlendOp::ADD;
@@ -330,7 +330,7 @@ void ParticleTest::createTexture()
         GFXBufferFlagBit::NONE };
     
     auto image = _device->createBuffer(imageBufferInfo);
-    image->Update(imageData, 0, BUFFER_SIZE);
+    image->update(imageData, 0, BUFFER_SIZE);
     CC_SAFE_FREE(imageData);
     
     GFXTextureInfo textureInfo;
@@ -411,7 +411,7 @@ void ParticleTest::tick(float dt) {
             pVbuffer[offset + 8] = 1.0 - p.age / p.life;
         }
     }
-    _vertexBuffer->Update(_vbufferArray, 0, sizeof(_vbufferArray));
+    _vertexBuffer->update(_vbufferArray, 0, sizeof(_vbufferArray));
     
     _commandBuffer->Begin();
     _commandBuffer->BeginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);

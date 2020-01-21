@@ -142,7 +142,7 @@ void StencilTest::createBuffers()
         GFXBufferFlagBit::NONE };
     
     _vertexBuffer = _device->createBuffer(vertexBufferInfo);
-    _vertexBuffer->Update(vertexData, 0, sizeof(vertexData));
+    _vertexBuffer->update(vertexData, 0, sizeof(vertexData));
     
     GFXBufferInfo uniformBufferInfo = {
         GFXBufferUsage::UNIFORM,
@@ -159,7 +159,7 @@ void StencilTest::createBuffers()
     for (uint i = 0; i < BINDING_COUNT; i++)
     {
         _uniformBuffer[i] = _device->createBuffer(uniformBufferInfo);
-        _uniformBuffer[i]->Update(&transform[i], 0, sizeof(transform[i]));
+        _uniformBuffer[i]->update(&transform[i], 0, sizeof(transform[i]));
     }
 }
 
@@ -188,7 +188,7 @@ void StencilTest::createTextures()
         GFXBufferFlagBit::NONE };
     
     auto stencilImageBuffer = _device->createBuffer(imageBufferInfo);
-    stencilImageBuffer->Update(stencilImage->getData(), 0, imageBufferInfo.size);
+    stencilImageBuffer->update(stencilImage->getData(), 0, imageBufferInfo.size);
     
     GFXTextureInfo labelTextureInfo;
     labelTextureInfo.usage = GFXTextureUsage::SAMPLED;
@@ -213,7 +213,7 @@ void StencilTest::createTextures()
     imageBufferInfo.size = static_cast<uint>(img->getDataLen());
     
     auto image = _device->createBuffer(imageBufferInfo);
-    image->Update(img->getData(), 0, imageBufferInfo.size);
+    image->update(img->getData(), 0, imageBufferInfo.size);
     
     GFXTextureInfo textureInfo;
     textureInfo.usage = GFXTextureUsage::SAMPLED;
@@ -272,7 +272,7 @@ void StencilTest::createPipelineState()
         _bindingLayout[i]->BindBuffer(0, _uniformBuffer[i]);
         _bindingLayout[i]->BindSampler(1, _sampler);
         _bindingLayout[i]->BindTextureView(1, texView[i]);
-        _bindingLayout[i]->Update();
+        _bindingLayout[i]->update();
         
         GFXPipelineLayoutInfo pipelineLayoutInfo;
         pipelineLayoutInfo.layouts = { _bindingLayout[i] };
@@ -285,7 +285,7 @@ void StencilTest::createPipelineState()
     pipelineInfo[(uint8_t)PipelineType::STENCIL].shader = _shader;
     pipelineInfo[(uint8_t)PipelineType::STENCIL].is = { _inputAssembler->attributes() };
     pipelineInfo[(uint8_t)PipelineType::STENCIL].layout = pipelineLayout[0];
-    pipelineInfo[(uint8_t)PipelineType::STENCIL].render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo[(uint8_t)PipelineType::STENCIL].render_pass = _device->mainWindow()->renderPass();
     pipelineInfo[(uint8_t)PipelineType::STENCIL].dss.depth_test = false;
     pipelineInfo[(uint8_t)PipelineType::STENCIL].dss.stencil_test_front = false;
     pipelineInfo[(uint8_t)PipelineType::STENCIL].dss.stencil_test_back = false;
@@ -297,7 +297,7 @@ void StencilTest::createPipelineState()
     pipelineInfo[(uint8_t)PipelineType::IMAGE].shader = _shader;
     pipelineInfo[(uint8_t)PipelineType::IMAGE].is = { _inputAssembler->attributes() };
     pipelineInfo[(uint8_t)PipelineType::IMAGE].layout = pipelineLayout[1];
-    pipelineInfo[(uint8_t)PipelineType::IMAGE].render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo[(uint8_t)PipelineType::IMAGE].render_pass = _device->mainWindow()->renderPass();
     pipelineInfo[(uint8_t)PipelineType::IMAGE].dss.depth_test = false;
     pipelineInfo[(uint8_t)PipelineType::IMAGE].dss.stencil_test_front = false;
     pipelineInfo[(uint8_t)PipelineType::IMAGE].dss.stencil_test_back = false;
@@ -309,7 +309,7 @@ void StencilTest::createPipelineState()
     pipelineInfo[(uint8_t)PipelineType::CAVAS].shader = _shader;
     pipelineInfo[(uint8_t)PipelineType::CAVAS].is = { _inputAssembler->attributes() };
     pipelineInfo[(uint8_t)PipelineType::CAVAS].layout = pipelineLayout[0];
-    pipelineInfo[(uint8_t)PipelineType::CAVAS].render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo[(uint8_t)PipelineType::CAVAS].render_pass = _device->mainWindow()->renderPass();
     pipelineInfo[(uint8_t)PipelineType::CAVAS].dss.depth_test = true;
     pipelineInfo[(uint8_t)PipelineType::CAVAS].dss.depth_write = false;
     pipelineInfo[(uint8_t)PipelineType::CAVAS].dss.stencil_test_front         = pipelineInfo[(uint8_t)PipelineType::CAVAS].dss.stencil_test_back        = true;
@@ -327,7 +327,7 @@ void StencilTest::createPipelineState()
     pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].shader = _shader;
     pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].is = { _inputAssembler->attributes() };
     pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].layout = pipelineLayout[1];
-    pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].render_pass = _device->mainWindow()->renderPass();
     pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].dss.depth_test = true;
     pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].dss.depth_write = false;
     pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].dss.stencil_test_front         = pipelineInfo[(uint8_t)PipelineType::FRONT_BACK_STENCIL].dss.stencil_test_back        = true;
@@ -346,7 +346,7 @@ void StencilTest::createPipelineState()
     pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].shader = _shader;
     pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].is = { _inputAssembler->attributes() };
     pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].layout = pipelineLayout[1];
-    pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].render_pass = _device->mainWindow()->renderPass();
     pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].dss.depth_test = true;
     pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].dss.depth_write = false;
     pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].dss.stencil_test_front         = pipelineInfo[(uint8_t)PipelineType::BACK_STENCIL].dss.stencil_test_back        = true;
@@ -366,7 +366,7 @@ void StencilTest::createPipelineState()
     pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].shader = _shader;
     pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].is = { _inputAssembler->attributes() };
     pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].layout = pipelineLayout[0];
-    pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].render_pass = _device->mainWindow()->render_pass();
+    pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].render_pass = _device->mainWindow()->renderPass();
     pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].dss.depth_test = true;
     pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].dss.depth_write = false;
     pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].dss.stencil_test_front         = pipelineInfo[(uint8_t)PipelineType::FRONT_STENCIL].dss.stencil_test_back        = true;
