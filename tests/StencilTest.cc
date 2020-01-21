@@ -269,9 +269,9 @@ void StencilTest::createPipelineState()
     for(uint i = 0; i < BINDING_COUNT; i++)
     {
         _bindingLayout[i] = _device->createBindingLayout(bindingLayoutInfo);
-        _bindingLayout[i]->BindBuffer(0, _uniformBuffer[i]);
-        _bindingLayout[i]->BindSampler(1, _sampler);
-        _bindingLayout[i]->BindTextureView(1, texView[i]);
+        _bindingLayout[i]->bindBuffer(0, _uniformBuffer[i]);
+        _bindingLayout[i]->bindSampler(1, _sampler);
+        _bindingLayout[i]->bindTextureView(1, texView[i]);
         _bindingLayout[i]->update();
         
         GFXPipelineLayoutInfo pipelineLayoutInfo;
@@ -391,8 +391,8 @@ void StencilTest::tick(float dt)
     GFXRect render_area = { 0, 0, _device->width(), _device->height() };
     GFXColor clear_color = {1.0f, 0, 0, 1.0f};
     
-    _commandBuffer->Begin();
-    _commandBuffer->BeginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
+    _commandBuffer->begin();
+    _commandBuffer->beginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
     
     //draw label
     GFXViewport viewport;
@@ -400,67 +400,67 @@ void StencilTest::tick(float dt)
     viewport.top = render_area.height / 2;
     viewport.width = render_area.width / 3;
     viewport.height = render_area.height / 2;
-    _commandBuffer->SetViewport(viewport);
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[0]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::STENCIL]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->setViewport(viewport);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[0]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::STENCIL]);
+    _commandBuffer->draw(_inputAssembler);
 
     //draw uv_image
     viewport.left = _device->width() / 2;
     viewport.top = _device->height() / 2;
-    _commandBuffer->SetViewport(viewport);
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[1]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::IMAGE]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->setViewport(viewport);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[1]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::IMAGE]);
+    _commandBuffer->draw(_inputAssembler);
 
     //do back and front stencil test
     viewport.left = 0;
     viewport.top = 0;
     viewport.width = render_area.width / 3;
     viewport.height = render_area.height / 2;
-    _commandBuffer->SetViewport(viewport);
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[0]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::CAVAS]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->setViewport(viewport);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[0]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::CAVAS]);
+    _commandBuffer->draw(_inputAssembler);
 
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[1]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::FRONT_BACK_STENCIL]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[1]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::FRONT_BACK_STENCIL]);
+    _commandBuffer->draw(_inputAssembler);
 
     //do back stencil test
     viewport.left = render_area.width / 3;
     viewport.top = 0;
-    _commandBuffer->SetViewport(viewport);
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[0]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::CAVAS]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->setViewport(viewport);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[0]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::CAVAS]);
+    _commandBuffer->draw(_inputAssembler);
 
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[1]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::BACK_STENCIL]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[1]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::BACK_STENCIL]);
+    _commandBuffer->draw(_inputAssembler);
 
     //do front stencil test
     viewport.left = render_area.width * 2 / 3;
     viewport.top = 0;
-    _commandBuffer->SetViewport(viewport);
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[0]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::CAVAS]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->setViewport(viewport);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[0]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::CAVAS]);
+    _commandBuffer->draw(_inputAssembler);
 
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout[1]);
-    _commandBuffer->BindPipelineState(_pipelineState[(uint8_t)PipelineType::FRONT_STENCIL]);
-    _commandBuffer->Draw(_inputAssembler);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout[1]);
+    _commandBuffer->bindPipelineState(_pipelineState[(uint8_t)PipelineType::FRONT_STENCIL]);
+    _commandBuffer->draw(_inputAssembler);
 
-    _commandBuffer->EndRenderPass();
-    _commandBuffer->End();
+    _commandBuffer->endRenderPass();
+    _commandBuffer->end();
     
     _device->queue()->submit(&_commandBuffer, 1);
     _device->present();

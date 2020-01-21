@@ -173,8 +173,8 @@ namespace
             bindingLayout = device->createBindingLayout(bindingLayoutInfo);
             
             
-            bindingLayout->BindBuffer(0, nearFarUniformBuffer);
-            bindingLayout->BindSampler(texBindingLoc, sampler);
+            bindingLayout->bindBuffer(0, nearFarUniformBuffer);
+            bindingLayout->bindSampler(texBindingLoc, sampler);
             bindingLayout->update();
             
             GFXPipelineLayoutInfo pipelineLayoutInfo;
@@ -380,7 +380,7 @@ namespace
             GFXBindingLayoutInfo bindingLayoutInfo = { bindingList };
             auto bunnyIndex = 0;
             bindingLayout[bunnyIndex] = device->createBindingLayout(bindingLayoutInfo);
-            bindingLayout[bunnyIndex]->BindBuffer(0, mvpUniformBuffer[bunnyIndex]);
+            bindingLayout[bunnyIndex]->bindBuffer(0, mvpUniformBuffer[bunnyIndex]);
             bindingLayout[bunnyIndex]->update();
             
             GFXPipelineLayoutInfo pipelineLayoutInfo;
@@ -404,7 +404,7 @@ namespace
             pipelineLayoutInfo.layouts = { bindingLayout[bunnyIndex] };
             pipelineLayout = device->createPipelineLayout(pipelineLayoutInfo);
             bindingLayout[bunnyIndex] = device->createBindingLayout(bindingLayoutInfo);
-            bindingLayout[bunnyIndex]->BindBuffer(0, mvpUniformBuffer[bunnyIndex]);
+            bindingLayout[bunnyIndex]->bindBuffer(0, mvpUniformBuffer[bunnyIndex]);
             bindingLayout[bunnyIndex]->update();
             pipelineInfo.layout = pipelineLayout;
             pipelineState[bunnyIndex] = device->createPipelineState(pipelineInfo);
@@ -483,10 +483,10 @@ void DepthTexture::tick(float dt)
     GFXRect render_area = {0, 0, _device->width(), _device->height() };
     GFXColor clear_color = {1.0, 0, 0, 1.0f};
 
-    _commandBuffer->Begin();
+    _commandBuffer->begin();
     
     //render bunny
-    _commandBuffer->BeginRenderPass(_bunnyWindow->framebuffer(), render_area, GFXClearFlagBit::DEPTH, &clear_color, 1, 1.0f, 0);
+    _commandBuffer->beginRenderPass(_bunnyWindow->framebuffer(), render_area, GFXClearFlagBit::DEPTH, &clear_color, 1, 1.0f, 0);
     for(uint i = 0; i < Bunny::BUNNY_NUM; i++)
     {
         _model = Mat4::IDENTITY;
@@ -499,24 +499,24 @@ void DepthTexture::tick(float dt)
         bunny->mvpUniformBuffer[i]->update(_projection.m, sizeof(_model) + sizeof(_view), sizeof(_projection));
         bunny->bindingLayout[i]->update();
         
-        _commandBuffer->BindInputAssembler(bunny->inputAssembler);
-        _commandBuffer->BindBindingLayout(bunny->bindingLayout[i]);
-        _commandBuffer->BindPipelineState(bunny->pipelineState[i]);
-        _commandBuffer->Draw(bunny->inputAssembler);
+        _commandBuffer->bindInputAssembler(bunny->inputAssembler);
+        _commandBuffer->bindBindingLayout(bunny->bindingLayout[i]);
+        _commandBuffer->bindPipelineState(bunny->pipelineState[i]);
+        _commandBuffer->draw(bunny->inputAssembler);
     }
-    _commandBuffer->EndRenderPass();
+    _commandBuffer->endRenderPass();
     
     //render bg
-    bg->bindingLayout->BindTextureView(bg->texBindingLoc, _bunnyWindow->depthStencilTexView());
+    bg->bindingLayout->bindTextureView(bg->texBindingLoc, _bunnyWindow->depthStencilTexView());
     bg->bindingLayout->update();
-    _commandBuffer->BeginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
-    _commandBuffer->BindInputAssembler(bg->inputAssembler);
-    _commandBuffer->BindBindingLayout(bg->bindingLayout);
-    _commandBuffer->BindPipelineState(bg->pipelineState);
-    _commandBuffer->Draw(bg->inputAssembler);
-    _commandBuffer->EndRenderPass();
+    _commandBuffer->beginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
+    _commandBuffer->bindInputAssembler(bg->inputAssembler);
+    _commandBuffer->bindBindingLayout(bg->bindingLayout);
+    _commandBuffer->bindPipelineState(bg->pipelineState);
+    _commandBuffer->draw(bg->inputAssembler);
+    _commandBuffer->endRenderPass();
     
-    _commandBuffer->End();
+    _commandBuffer->end();
 
     _device->queue()->submit(&_commandBuffer, 1);
     _device->present();

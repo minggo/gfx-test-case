@@ -222,17 +222,17 @@ void BasicTriangle::tick(float dt) {
     uniformColor.a = 1.0f;
 
     _uniformBuffer->update(&uniformColor, 0, sizeof(uniformColor));
-    _bindingLayout->BindBuffer(0, _uniformBuffer);
+    _bindingLayout->bindBuffer(0, _uniformBuffer);
     _bindingLayout->update();
 
-    _commandBuffer->Begin();
-    _commandBuffer->BeginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout);
-    _commandBuffer->BindPipelineState(_pipelineState);
-    _commandBuffer->Draw(_inputAssembler);
-    _commandBuffer->EndRenderPass();
-    _commandBuffer->End();
+    _commandBuffer->begin();
+    _commandBuffer->beginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout);
+    _commandBuffer->bindPipelineState(_pipelineState);
+    _commandBuffer->draw(_inputAssembler);
+    _commandBuffer->endRenderPass();
+    _commandBuffer->end();
 
     _device->queue()->submit(&_commandBuffer, 1);
     _device->present();

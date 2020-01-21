@@ -282,9 +282,9 @@ void ParticleTest::createPipeline()
     GFXBindingLayoutInfo bindingLayoutInfo = { bindingList };
     _bindingLayout = _device->createBindingLayout(bindingLayoutInfo);
     
-    _bindingLayout->BindBuffer(0, _uniformBuffer);
-    _bindingLayout->BindSampler(1, _sampler);
-    _bindingLayout->BindTextureView(1, _texView);
+    _bindingLayout->bindBuffer(0, _uniformBuffer);
+    _bindingLayout->bindSampler(1, _sampler);
+    _bindingLayout->bindTextureView(1, _texView);
     _bindingLayout->update();
 
     GFXPipelineLayoutInfo pipelineLayoutInfo;
@@ -413,14 +413,14 @@ void ParticleTest::tick(float dt) {
     }
     _vertexBuffer->update(_vbufferArray, 0, sizeof(_vbufferArray));
     
-    _commandBuffer->Begin();
-    _commandBuffer->BeginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
-    _commandBuffer->BindInputAssembler(_inputAssembler);
-    _commandBuffer->BindBindingLayout(_bindingLayout);
-    _commandBuffer->BindPipelineState(_pipelineState);
-    _commandBuffer->Draw(_inputAssembler);
-    _commandBuffer->EndRenderPass();
-    _commandBuffer->End();
+    _commandBuffer->begin();
+    _commandBuffer->beginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, &clear_color, 1, 1.0f, 0);
+    _commandBuffer->bindInputAssembler(_inputAssembler);
+    _commandBuffer->bindBindingLayout(_bindingLayout);
+    _commandBuffer->bindPipelineState(_pipelineState);
+    _commandBuffer->draw(_inputAssembler);
+    _commandBuffer->endRenderPass();
+    _commandBuffer->end();
 
     _device->queue()->submit(&_commandBuffer, 1);
     _device->present();
