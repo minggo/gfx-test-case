@@ -1,4 +1,4 @@
-﻿#include "GameApp.h"
+#include "GameApp.h"
 #include "base/ccMacros.h"
 #include "platform/CCFileUtils.h"
 #include "tests/ClearScreenTest.h"
@@ -9,7 +9,6 @@
 #include "tests/BlendTest.h"
 #include "tests/ParticleTest.h"
 #include "tests/BunnyTest.h"
-
 
 NS_CC_BEGIN
 
@@ -31,7 +30,7 @@ GameApp::GameApp()
     GetCurrentDirectory(MAX_PATH, szRootPath);
     root_path_ = szRootPath;
 
-    is_fullscreen_ = false;
+    _isFullscreen = false;
     _windowInfo.screen.width = 1024;
     _windowInfo.screen.height = 768;
     is_paused_ = false;
@@ -47,10 +46,10 @@ GameApp::~GameApp()
 bool GameApp::Setup()
 {
     // Initialize the windows API.
-    if(!InitAppWindow(_windowInfo.screen.width, _windowInfo.screen.height, is_fullscreen_))
+    if(!InitAppWindow(_windowInfo.screen.width, _windowInfo.screen.height, _isFullscreen))
         return false;
 
-    if (!Initialize()) {
+    if (!initialize()) {
         return false;
     }
 
@@ -126,7 +125,7 @@ void GameApp::Run()
     DestroyAppWindow();
 }
 
-bool GameApp::Initialize()
+bool GameApp::initialize()
 {
     static bool first = true;
     if (first)
@@ -137,7 +136,7 @@ bool GameApp::Initialize()
             BasicTexture::create,
             DepthTexture::create,
             StencilTest::create,
-			      BlendTest::create,
+	    BlendTest::create,
             ParticleTest::create,
             BunnyTest::create,
         };
@@ -155,9 +154,9 @@ void GameApp::destroy()
     CC_SAFE_DESTROY(_test);
 }
 
-void GameApp::Resize(uint width, uint height)
+void GameApp::resize(uint width, uint height)
 {
-    TestBaseI::getDevice()->Resize(width, height);
+    TestBaseI::getDevice()->resize(width, height);
 }
 
 void GameApp::OnKeyDown(WPARAM keyCode)
@@ -249,7 +248,7 @@ LRESULT CALLBACK GameApp::MessageHandler(HWND hWnd, DWORD msg, WPARAM wParam, LP
         {
             uint width = (uint)LOWORD(lParam);
             uint height = (uint)HIWORD(lParam);
-            Resize(width, height);
+            resize(width, height);
             //Root::Instance()->onSize(width, height);
         }
     } break;
@@ -393,7 +392,7 @@ void GameApp::DestroyAppWindow()
     ShowCursor(true);
 
     // Fix the display settings if leaving full screen mode.
-    if(is_fullscreen_)
+    if(_isFullscreen)
     {
         ChangeDisplaySettings(NULL, 0);
     }
