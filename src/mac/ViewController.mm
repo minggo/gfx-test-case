@@ -10,7 +10,11 @@
 #include "tests/ClearScreenTest.h"
 #include "tests/BasicTriangleTest.h"
 #include "tests/BasicTextureTest.h"
+#include "tests/StencilTest.h"
+#include "tests/ParticleTest.h"
+#include "tests/DepthTest.h"
 #include "tests/TestBase.h"
+#include "tests/BunnyTest.h"
 
 #import <AppKit/NSTouch.h>
 #import <AppKit/NSEvent.h>
@@ -102,6 +106,10 @@ namespace
             ClearScreen::create,
             BasicTriangle::create,
             BasicTexture::create,
+            StencilTest::create,
+            ParticleTest::create,
+            DepthTexture::create,
+            BunnyTest::create,
         };
         g_test = g_tests[g_nextTextIndex](g_windowInfo);
         if (g_test == nullptr)

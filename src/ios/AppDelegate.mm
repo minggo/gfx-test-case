@@ -15,6 +15,8 @@
 #include "tests/DepthTest.h"
 #include "tests/StencilTest.h"
 #include "tests/BlendTest.h"
+#include "tests/ParticleTest.h"
+#include "tests/BunnyTest.h"
 
 using namespace cocos2d;
 
@@ -86,6 +88,8 @@ namespace
             DepthTexture::create,
             StencilTest::create,
             BlendTest::create,
+            ParticleTest::create,
+            BunnyTest::create
         };
         g_test = g_tests[g_nextTextIndex](g_windowInfo);
         if (g_test == nullptr)

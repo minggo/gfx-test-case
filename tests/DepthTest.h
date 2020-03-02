@@ -1,7 +1,10 @@
 #pragma once
 
 #include "TestBase.h"
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#else
 #include "GLES2Std.h"
+#endif
 #include "math/Mat4.h"
 
 NS_CC_BEGIN
@@ -16,7 +19,7 @@ public:
 public:
      virtual void tick(float dt) override;
      virtual bool initialize() override;
-     virtual void Destroy() override;
+     virtual void destroy() override;
 
 private:
     void createFBO();
