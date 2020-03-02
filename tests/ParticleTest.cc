@@ -412,7 +412,7 @@ void ParticleTest::createTexture()
     GFXBufferTextureCopyList regions;
     regions.push_back(std::move(textureRegion));
     
-    GFXArrayBufferView imageBuffer = { { imageData } };
+    GFXArrayBuffer imageBuffer = { { imageData } };
     _device->copyBuffersToTexture(imageBuffer, _texture, regions);
     CC_SAFE_FREE(imageData);
     
