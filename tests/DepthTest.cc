@@ -1,6 +1,10 @@
 #include "DepthTest.h"
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#include "gfx-metal/GFXMTL.h"
+#else
 #include "gfx-gles2/GFXGLES2.h"
 #include "gfx-gles3/GFXGLES3.h"
+#endif
 #include "cocos2d.h"
 #include "BunnyData.h"
 
@@ -25,6 +29,34 @@ namespace
             GFXShaderStageList shaderStageList;
             GFXShaderStage vertexShaderStage;
             vertexShaderStage.type = GFXShaderType::VERTEX;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+            vertexShaderStage.source = R"(
+            #include <metal_stdlib>
+            #include <simd/simd.h>
+            
+            using namespace metal;
+            
+            struct main0_out
+            {
+                float2 v_texcoord [[user(locn0)]];
+                float4 gl_Position [[position]];
+            };
+            
+            struct main0_in
+            {
+                float2 a_position [[attribute(0)]];
+            };
+            
+            vertex main0_out main0(main0_in in [[stage_in]])
+            {
+                main0_out out = {};
+                out.v_texcoord = (in.a_position + float2(1.0)) * 0.5;
+                out.gl_Position = float4(in.a_position, 0.0, 1.0);
+                return out;
+            }
+            )";
+#else
+            
 #ifdef USE_GLES2
             vertexShaderStage.source = R"(
             attribute vec2 a_position;
@@ -33,7 +65,7 @@ namespace
             void main() {
                 v_texcoord = (a_position + 1.0) * 0.5;
             #ifndef GL_ES
-                v_texcoord = vec2(uv.x, 1.0 - uv.y);
+                v_texcoord = vec2(v_texcoord.x, 1.0 - v_texcoord.y);
             #endif
                 gl_Position = vec4(a_position, 0, 1);
             }
@@ -46,16 +78,57 @@ namespace
             void main() {
                 v_texcoord = (a_position + 1.0) * 0.5;
             #ifndef GL_ES
-                v_texcoord = vec2(uv.x, 1.0 - uv.y);
+                v_texcoord = vec2(v_texcoord.x, 1.0 - v_texcoord.y);
             #endif
                 gl_Position = vec4(a_position, 0, 1);
             }
             )";
-#endif
+#endif // USE_GLES2
+            
+#endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
             shaderStageList.emplace_back(std::move(vertexShaderStage));
             
             GFXShaderStage fragmentShaderStage;
             fragmentShaderStage.type = GFXShaderType::FRAGMENT;
+            
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+            fragmentShaderStage.source = R"(
+            #include <metal_stdlib>
+            #include <simd/simd.h>
+            
+            using namespace metal;
+            
+            struct Near_Far_Uniform
+            {
+                float u_near;
+                float u_far;
+            };
+            
+            struct main0_out
+            {
+                float4 o_color [[color(0)]];
+            };
+            
+            struct main0_in
+            {
+                float2 v_texcoord [[user(locn0)]];
+            };
+            
+            fragment main0_out main0(main0_in in [[stage_in]], constant Near_Far_Uniform& _26 [[buffer(0)]], texture2d<float> u_texture [[texture(0)]], sampler u_textureSmplr [[sampler(0)]])
+            {
+                main0_out out = {};
+                float z = u_texture.sample(u_textureSmplr, in.v_texcoord).x;
+                float viewZ = (_26.u_near * _26.u_far) / (((_26.u_far - _26.u_near) * z) - _26.u_far);
+                float depth = (viewZ + _26.u_near) / (_26.u_near - _26.u_far);
+                float3 _62 = float3(depth);
+                out.o_color = float4(_62.x, _62.y, _62.z, out.o_color.w);
+                out.o_color.w = 1.0;
+                //out.o_color = float4(1.0, 0, 0, 1.0);
+                return out;
+            }
+            )";
+#else
+            
 #ifdef USE_GLES2
             fragmentShaderStage.source = R"(
             #ifdef GL_ES
@@ -97,7 +170,9 @@ namespace
                 o_color.a = 1.0;
             }
             )";
-#endif
+#endif // USE_GLES2
+            
+#endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
             shaderStageList.emplace_back(std::move(fragmentShaderStage));
                                          
              GFXUniformList nearFarUniform = {
@@ -119,8 +194,8 @@ namespace
         {
             //create sampler
             GFXSamplerInfo samplerInfo;
-            samplerInfo.address_u = GFXAddress::CLAMP;
-            samplerInfo.address_v = GFXAddress::CLAMP;
+            samplerInfo.addressU = GFXAddress::CLAMP;
+            samplerInfo.addressV = GFXAddress::CLAMP;
             sampler = device->createSampler(samplerInfo);
         }
                                          
@@ -158,7 +233,7 @@ namespace
              GFXAttribute position = {"a_position", GFXFormat::RG32F, false, 0, false};
              GFXInputAssemblerInfo inputAssemblerInfo;
              inputAssemblerInfo.attributes.emplace_back(std::move(position));
-             inputAssemblerInfo.vertex_buffers.emplace_back(vertexBuffer);
+             inputAssemblerInfo.vertexBuffers.emplace_back(vertexBuffer);
              inputAssembler = device->createInputAssembler(inputAssemblerInfo);
          }
                 
@@ -167,7 +242,7 @@ namespace
             texBindingLoc = 1;
             GFXBindingList bindingList = {
                 {0, GFXBindingType::UNIFORM_BUFFER, "Near_Far_Uniform"},
-                {texBindingLoc, GFXBindingType::SAMPLER, "Texture"}
+                {texBindingLoc, GFXBindingType::SAMPLER, "u_texture"}
             };
             GFXBindingLayoutInfo bindingLayoutInfo = { bindingList };
             bindingLayout = device->createBindingLayout(bindingLayoutInfo);
@@ -184,16 +259,16 @@ namespace
             GFXPipelineStateInfo pipelineInfo;
             pipelineInfo.primitive = GFXPrimitiveMode::TRIANGLE_LIST;
             pipelineInfo.shader = shader;
-            pipelineInfo.is = { inputAssembler->attributes() };
+            pipelineInfo.inputState = { inputAssembler->attributes() };
             pipelineInfo.layout = pipelineLayout;
-            pipelineInfo.render_pass = device->mainWindow()->renderPass();
+            pipelineInfo.renderPass = device->mainWindow()->renderPass();
             
-            pipelineInfo.dss.depth_test = false;
-            pipelineInfo.dss.depth_write = false;
-            pipelineInfo.dss.stencil_test_back = false;
-            pipelineInfo.dss.stencil_test_front = false;
+            pipelineInfo.depthStencilState.depthTest = false;
+            pipelineInfo.depthStencilState.depthWrite = false;
+            pipelineInfo.depthStencilState.stencilTestBack = false;
+            pipelineInfo.depthStencilState.stencilTestFront = false;
             
-            pipelineInfo.rs.cull_mode = GFXCullMode::NONE;
+            pipelineInfo.rasterizerState.cullMode = GFXCullMode::NONE;
             
             pipelineState = device->createPipelineState(pipelineInfo);
             
@@ -251,6 +326,40 @@ namespace
             GFXShaderStageList shaderStageList;
             GFXShaderStage vertexShaderStage;
             vertexShaderStage.type = GFXShaderType::VERTEX;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+            vertexShaderStage.source = R"(
+            #include <metal_stdlib>
+            #include <simd/simd.h>
+            
+            using namespace metal;
+            
+            struct MVP_Matrix
+            {
+                float4x4 u_model;
+                float4x4 u_view;
+                float4x4 u_projection;
+            };
+            
+            struct main0_out
+            {
+                float4 gl_Position [[position]];
+            };
+            
+            struct main0_in
+            {
+                float3 a_position [[attribute(0)]];
+            };
+            
+            vertex main0_out main0(main0_in in [[stage_in]], constant MVP_Matrix& _13 [[buffer(0)]])
+            {
+                main0_out out = {};
+                float4 pos = ((_13.u_projection * _13.u_view) * _13.u_model) * float4(in.a_position, 1.0);
+                out.gl_Position = pos;
+                return out;
+            }
+            )";
+#else
+            
 #ifdef USE_GLES2
             vertexShaderStage.source = R"(
             #ifdef GL_ES
@@ -282,12 +391,35 @@ namespace
                 gl_Position = pos;
             }
             )";
-#endif
+#endif // USE_GLES2
+            
+#endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
             shaderStageList.emplace_back(std::move(vertexShaderStage));
             
             //fragment shader
             GFXShaderStage fragmentShaderStage;
             fragmentShaderStage.type = GFXShaderType::FRAGMENT;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+            fragmentShaderStage.source = R"(
+            #include <metal_stdlib>
+            #include <simd/simd.h>
+            
+            using namespace metal;
+            
+            struct main0_out
+            {
+                float4 o_color [[color(0)]];
+            };
+            
+            fragment main0_out main0()
+            {
+                main0_out out = {};
+                out.o_color = float4(1.0);
+                return out;
+            }
+            )";
+#else
+            
 #ifdef USE_GLES2
             fragmentShaderStage.source = R"(
             #ifdef GL_ES
@@ -309,7 +441,9 @@ namespace
                 o_color = vec4(1, 1, 1, 1);
             }
             )";
-#endif
+#endif // USE_GLES2
+            
+#endif // #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
             shaderStageList.emplace_back(std::move(fragmentShaderStage));
             
             GFXUniformList mvpMatrix = {
@@ -367,8 +501,8 @@ namespace
             GFXAttribute position = {"a_position", GFXFormat::RGB32F, false, 0, false};
             GFXInputAssemblerInfo inputAssemblerInfo;
             inputAssemblerInfo.attributes.emplace_back(std::move(position));
-            inputAssemblerInfo.vertex_buffers.emplace_back(vertexBuffer);
-            inputAssemblerInfo.index_buffer = indexBuffer;
+            inputAssemblerInfo.vertexBuffers.emplace_back(vertexBuffer);
+            inputAssemblerInfo.indexBuffer = indexBuffer;
             inputAssembler = device->createInputAssembler(inputAssemblerInfo);
         }
         
@@ -390,12 +524,13 @@ namespace
             GFXPipelineStateInfo pipelineInfo;
             pipelineInfo.primitive = GFXPrimitiveMode::TRIANGLE_LIST;
             pipelineInfo.shader = shader;
-            pipelineInfo.is = { inputAssembler->attributes() };
+            pipelineInfo.inputState = { inputAssembler->attributes() };
             pipelineInfo.layout = pipelineLayout;
-            pipelineInfo.render_pass = _window->renderPass();
-            pipelineInfo.dss.depth_test = true;
-            pipelineInfo.dss.depth_write = true;
-            pipelineInfo.dss.depth_func = GFXComparisonFunc::LESS;
+            pipelineInfo.renderPass = _window->renderPass();
+            pipelineInfo.depthStencilState.depthTest = true;
+            pipelineInfo.depthStencilState.depthWrite = true;
+            pipelineInfo.depthStencilState.depthFunc = GFXComparisonFunc::LESS;
+
             pipelineState[bunnyIndex] = device->createPipelineState(pipelineInfo);
             CC_SAFE_DESTROY(pipelineLayout);
             
@@ -462,12 +597,13 @@ bool DepthTexture::initialize()
 
 void DepthTexture::createFBO()
 {
-    GFXWindowInfo window_info;
-    window_info.width = _device->width();
-    window_info.height = _device->height();
-    window_info.depth_stencil_fmt = GFXFormat::D24S8;
-    window_info.is_offscreen = true;
-    _bunnyWindow = _device->createWindow(window_info);
+    GFXWindowInfo windowInfo;
+    windowInfo.width = _device->width();
+    windowInfo.height = _device->height();
+    windowInfo.colorFmt = GFXFormat::RGBA8;
+    windowInfo.depthStencilFmt = GFXFormat::D24S8;
+    windowInfo.isOffscreen = true;
+    _bunnyWindow = _device->createWindow(windowInfo);
 }
 
 void DepthTexture::tick(float dt)

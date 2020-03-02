@@ -14,7 +14,7 @@ class ClearScreen: public TestBaseI
  public:
      virtual void tick(float dt) override;
      virtual bool initialize() override;
-     virtual void destroy();
+     virtual void destroy() override;
 
  private:
      float _time = 0.0f;
