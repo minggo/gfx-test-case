@@ -61,7 +61,15 @@ void BasicTriangle::createShader()
     )";
 #else
     
-#ifdef USE_GLES2
+#if defined(USE_VULKAN)
+    vertexShaderStage.source = R"(
+        layout(location = 0) in vec2 a_position;
+        void main()
+        {
+            gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+    )";
+#elif defined(USE_GLES2)
     vertexShaderStage.source = R"(
         attribute vec2 a_position;
         void main()
@@ -70,7 +78,7 @@ void BasicTriangle::createShader()
         }
     )";
 #else
-    vertexShaderStage.source = R"(#version 300 es
+    vertexShaderStage.source = R"(
     in vec2 a_position;
     void main()
     {
@@ -111,17 +119,30 @@ void BasicTriangle::createShader()
     )";
 #else
     
-#ifdef USE_GLES2
+#if defined(USE_VULKAN)
+    fragmentShaderStage.source = R"(
+        //layout(binding = 0) uniform Color
+        //{
+        //    vec4 u_color;
+        //};
+        layout(location = 0) out vec4 o_color;
+    
+        void main()
+        {
+            o_color = vec4(1, 1, 0, 1); // u_color;
+        }
+    )";
+#elif defined(USE_GLES2)
     fragmentShaderStage.source = R"(
         precision highp float;
         uniform vec4 u_color;
         void main()
         {
-            gl_FragColor = u_color;
+            gl_FragColor = vec4(1, 1, 0, 1); // u_color;
         }
     )";
 #else
-    fragmentShaderStage.source = R"(#version 300 es
+    fragmentShaderStage.source = R"(
     #ifdef GL_ES
     precision highp float;
     #endif
@@ -133,7 +154,7 @@ void BasicTriangle::createShader()
     
     void main()
     {
-        o_color = u_color;
+        o_color = vec4(1, 1, 0, 1); // u_color;
     }
     )";
 #endif // #ifdef USE_GLES2
@@ -142,21 +163,21 @@ void BasicTriangle::createShader()
     shaderStageList.emplace_back(std::move(fragmentShaderStage));
 
     GFXUniformList uniformList = { { "u_color", GFXType::FLOAT4, 1 } };
-    GFXUniformBlockList uniformBlockList = { {0, "Color", uniformList} };
+    GFXUniformBlockList uniformBlockList = { { 0, "Color", uniformList } };
 
     GFXShaderInfo shaderInfo;
     shaderInfo.name = "Basic Triangle";
     shaderInfo.stages = std::move(shaderStageList);
-    shaderInfo.blocks = std::move(uniformBlockList);
+    //shaderInfo.blocks = std::move(uniformBlockList);
     _shader = _device->createShader(shaderInfo);
 }
 
 void BasicTriangle::createVertexBuffer()
 {
     float vertexData[] = {
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        0.0f, 1.0f
+        -0.5f, -0.5f,
+        0.5f, -0.5f,
+        0.0f, 0.5f
     };
 
     GFXBufferInfo vertexBufferInfo = {
@@ -189,7 +210,7 @@ void BasicTriangle::createInputAssembler()
 
 void BasicTriangle::createPipeline()
 {
-    GFXBindingList bindingList = { {0, GFXBindingType::UNIFORM_BUFFER, "u_color"} };
+    GFXBindingList bindingList;// = { {0, GFXBindingType::UNIFORM_BUFFER, "u_color"} };
     GFXBindingLayoutInfo bindingLayoutInfo = { bindingList };
     _bindingLayout = _device->createBindingLayout(bindingLayoutInfo);
 

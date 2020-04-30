@@ -86,7 +86,7 @@ void BasicTexture::createShader()
     }
     )";
 #else
-    vertexShaderStage.source = R"(#version 300 es
+    vertexShaderStage.source = R"(
     in vec2 a_position;
     out vec2 texcoord;
     layout(std140) uniform MVP_Matrix
@@ -147,7 +147,7 @@ void BasicTexture::createShader()
     }
     )";
 #else
-    fragmentShaderStage.source = R"(#version 300 es
+    fragmentShaderStage.source = R"(
     #ifdef GL_ES
     precision highp float;
     #endif
