@@ -11,12 +11,13 @@ NS_CC_BEGIN
 
 void BasicTriangle::destroy()
 {
-    CC_SAFE_DESTROY(_shader);
     CC_SAFE_DESTROY(_vertexBuffer);
     CC_SAFE_DESTROY(_inputAssembler);
-    CC_SAFE_DESTROY(_pipelineState);
-    CC_SAFE_DESTROY(_bindingLayout);
     CC_SAFE_DESTROY(_uniformBuffer);
+    CC_SAFE_DESTROY(_shader);
+    CC_SAFE_DESTROY(_bindingLayout);
+    CC_SAFE_DESTROY(_pipelineLayout);
+    CC_SAFE_DESTROY(_pipelineState);
 }
 
 bool BasicTriangle::initialize()
@@ -121,15 +122,15 @@ void BasicTriangle::createShader()
     
 #if defined(USE_VULKAN)
     fragmentShaderStage.source = R"(
-        //layout(binding = 0) uniform Color
-        //{
-        //    vec4 u_color;
-        //};
+        layout(binding = 0) uniform Color
+        {
+            vec4 u_color;
+        };
         layout(location = 0) out vec4 o_color;
     
         void main()
         {
-            o_color = vec4(1, 1, 0, 1); // u_color;
+            o_color = u_color;
         }
     )";
 #elif defined(USE_GLES2)
@@ -168,7 +169,7 @@ void BasicTriangle::createShader()
     GFXShaderInfo shaderInfo;
     shaderInfo.name = "Basic Triangle";
     shaderInfo.stages = std::move(shaderStageList);
-    //shaderInfo.blocks = std::move(uniformBlockList);
+    shaderInfo.blocks = std::move(uniformBlockList);
     _shader = _device->createShader(shaderInfo);
 }
 
@@ -210,24 +211,22 @@ void BasicTriangle::createInputAssembler()
 
 void BasicTriangle::createPipeline()
 {
-    GFXBindingList bindingList;// = { {0, GFXBindingType::UNIFORM_BUFFER, "u_color"} };
+    GFXBindingList bindingList = { {0, GFXBindingType::UNIFORM_BUFFER, "u_color"} };
     GFXBindingLayoutInfo bindingLayoutInfo = { bindingList };
     _bindingLayout = _device->createBindingLayout(bindingLayoutInfo);
 
     GFXPipelineLayoutInfo pipelineLayoutInfo;
     pipelineLayoutInfo.layouts = { _bindingLayout };
-    auto pipelineLayout = _device->createPipelineLayout(pipelineLayoutInfo);
+    _pipelineLayout = _device->createPipelineLayout(pipelineLayoutInfo);
 
     GFXPipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = GFXPrimitiveMode::TRIANGLE_LIST;
     pipelineInfo.shader = _shader;
     pipelineInfo.inputState = { _inputAssembler->getAttributes() };
-    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.layout = _pipelineLayout;
     pipelineInfo.renderPass = _device->getMainWindow()->getRenderPass();
 
     _pipelineState = _device->createPipelineState(pipelineInfo);
-
-    CC_SAFE_DESTROY(pipelineLayout);
 }
 
 void BasicTriangle::tick(float dt) {
@@ -246,13 +245,15 @@ void BasicTriangle::tick(float dt) {
     _bindingLayout->bindBuffer(0, _uniformBuffer);
     _bindingLayout->update();
 
-    for(auto commandBuffer : _commandBuffers)
+    _device->begin();
+
+    for (auto commandBuffer : _commandBuffers)
     {
         commandBuffer->begin();
         commandBuffer->beginRenderPass(_fbo, render_area, GFXClearFlagBit::ALL, std::move(std::vector<GFXColor>({clear_color})), 1.0f, 0);
         commandBuffer->bindInputAssembler(_inputAssembler);
-        commandBuffer->bindBindingLayout(_bindingLayout);
         commandBuffer->bindPipelineState(_pipelineState);
+        commandBuffer->bindBindingLayout(_bindingLayout);
         commandBuffer->draw(_inputAssembler);
         commandBuffer->endRenderPass();
         commandBuffer->end();
